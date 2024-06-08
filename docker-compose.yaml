@@ -1,0 +1,34 @@
+version: '3'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:16.2-alpine3.19
+    networks:
+      - app-tier
+    restart: always
+    env_file:
+      - ./.env
+    ports:
+      - 5439:5439
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  app:
+    restart: on-failure
+    build: .
+    networks:
+      - app-tier
+    depends_on:
+      - postgres
+    ports:
+      - 8080:8080
+    env_file:
+      - .env-docker
+
+volumes:
+  pg_data:
+    
